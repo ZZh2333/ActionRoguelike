@@ -2,6 +2,7 @@
 
 
 #include "ZHCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 
@@ -13,13 +14,16 @@ AZHCharacter::AZHCharacter()
 
 	//弹簧臂相机：更好的处理相机与墙壁的碰撞
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
+	SpringArmComp->bUsePawnControlRotation = true;
 	SpringArmComp->SetupAttachment(RootComponent);
 
 	//处理相机与人物之间的距离？
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
 
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 
+	bUseControllerRotationYaw = false;
 }
 
 // Called when the game starts or when spawned
@@ -31,7 +35,26 @@ void AZHCharacter::BeginPlay()
 
 void AZHCharacter::MoveForward(float Value)
 {
-	AddMovementInput(GetActorForwardVector(), Value);
+	FRotator ControlRot = GetControlRotation();
+	ControlRot.Pitch = 0.0f;
+	ControlRot.Roll = 0.0f;
+
+	AddMovementInput(ControlRot.Vector(), Value);
+}
+
+void AZHCharacter::MoveRight(float Value)
+{
+	FRotator ControlRot = GetControlRotation();
+	ControlRot.Pitch = 0.0f;
+	ControlRot.Roll = 0.0f;
+
+	// X = Forward (Red)
+	// Y = Right (Green)
+	// Z = Up (Blue)
+
+	FVector RightVector = FRotationMatrix(ControlRot).GetScaledAxis(EAxis::Y);
+
+	AddMovementInput(RightVector, Value);
 }
 
 // Called every frame
@@ -48,6 +71,8 @@ void AZHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	//控制任务前进、后退、镜头偏移
 	PlayerInputComponent->BindAxis("MoveForward", this, &AZHCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AZHCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 }
 
