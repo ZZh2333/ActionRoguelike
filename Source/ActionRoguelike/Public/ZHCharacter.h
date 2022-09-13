@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+//class ProjectileClass;
 
 UCLASS()
 class ACTIONROGUELIKE_API AZHCharacter : public ACharacter
@@ -29,6 +30,10 @@ protected:
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TSubclassOf<AActor> ProjectileClass;
+	void PrimaryAttack();
 
 public:
 	// Called every frame

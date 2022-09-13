@@ -13,6 +13,12 @@ ASMagicProjecttile::ASMagicProjecttile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
+	//在项目设置-collision中已经添加projectile类来实现以下三行
+	//SphereComp->SetCollisionObjectType(ECC_WorldDynamic);
+	//SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	//SphereComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	SphereComp->SetCollisionProfileName("Projectile");
+
 	RootComponent = SphereComp;
 
 	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("EffectComp"));

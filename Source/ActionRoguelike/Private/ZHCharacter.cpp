@@ -9,7 +9,7 @@
 // Sets default values
 AZHCharacter::AZHCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	//弹簧臂相机：更好的处理相机与墙壁的碰撞
@@ -30,7 +30,7 @@ AZHCharacter::AZHCharacter()
 void AZHCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 void AZHCharacter::MoveForward(float Value)
@@ -57,6 +57,20 @@ void AZHCharacter::MoveRight(float Value)
 	AddMovementInput(RightVector, Value);
 }
 
+void AZHCharacter::PrimaryAttack()
+{
+	//2.获得手掌位置
+	FVector HandsLocation = GetMesh()->GetSocketLocation("Magic_r");
+
+	//1.生成子弹
+	//FTransform SpawnTM = FTransform(GetControlRotation(), GetActorLocation());
+	FTransform SpawnTM = FTransform(GetControlRotation(), HandsLocation);
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+}
+
 // Called every frame
 void AZHCharacter::Tick(float DeltaTime)
 {
@@ -74,5 +88,7 @@ void AZHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis("MoveRight", this, &AZHCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+
+	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AZHCharacter::PrimaryAttack);
 }
 
